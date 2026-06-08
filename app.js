@@ -26,3 +26,8 @@ enableBtn.addEventListener('click', async () => {
         alert('Permission denied. Please enable notifications in your browser settings.');
     }
 });
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
+    .then(() => console.log('Service Worker connected'))
+    .catch(error => console.log('Service Worker error:', error));
+}
