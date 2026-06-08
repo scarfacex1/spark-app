@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SparkApp</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+            width: 350px;
+        }
+        button {
+            background-color: #ff758c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        button:active { transform: scale(0.95); }
+        select {
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>SparkApp ✨</h1>
+        <p>Get motivated and learn new facts right on your device.</p>
+        
+        <label for="interval">Notification Interval:</label><br>
+        <select id="interval">
+            <option value="30">Every 30 Minutes</option>
+            <option value="60">Every 1 Hour</option>
+        </select>
+        
+        <br>
+        <button id="enable-btn">Enable Notifications</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+2. app.js
+This script connects the app to the browser, registers the background Service Worker, and handles sending settings to it.
+
+JavaScript
+// Register the Service Worker (the background worker)
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+    .then(reg => console.log('Service Worker Registered!', reg))
+    .catch(err => console.error('Service Worker Registration Failed', err));
+}
+
+const enableBtn = document.getElementById('enable-btn');
+const intervalSelect = document.getElementById('interval');
+
+enableBtn.addEventListener('click', async () => {
+    // Request permission from the user
+    const permission = await Notification.requestPermission();
+    
+    if (permission === 'granted') {
+        alert('Awesome! Notifications are enabled.');
+        
+        // Send the chosen timing interval to the background worker
+        if (navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                action: 'startInterval',
+                minutes: parseInt(intervalSelect.value)
+            });
+        }
+    } else {
+        alert('Permission denied. Please enable notifications in your browser settings.');
+    }
+});
